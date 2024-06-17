@@ -6,6 +6,9 @@ from pygame import surface
 
 RES = 800
 SIZE = 55
+pygame.display.set_caption('Sonic NONStop Adventure')
+icon = pygame.image.load('game_icon.png')
+pygame.display.set_icon(icon)
 pygame.font.init()
 
 # Функция для создания новой игры
@@ -47,8 +50,9 @@ while True:
         ring_image = pygame.image.load('ring.png').convert_alpha()
         sc.blit(ring_image, (ring))
         # Рендер надписи колец
-        font_score = pygame.font.SysFont('soniclogojp', 36)
+        font_score = pygame.font.SysFont('soniclogo_jp', 36)
         render_score = font_score.render("Rings: " + str(score), 1, (255, 215, 0))
+        sc.blit(render_score, (5, 750))
         # Движение змейки
         x += dx * SIZE
         y += dy * SIZE
