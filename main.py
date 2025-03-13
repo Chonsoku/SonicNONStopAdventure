@@ -106,6 +106,10 @@ while True:
             dx, dy = 1, 0
             current_direction = "D"
             moving = True
+        if keys[pygame.K_e]:
+            if score >= 50:
+                score -= 50
+                fps = 5
 
         # Анимация ходьбы
         if moving:
