@@ -1,9 +1,7 @@
 import os
-from random import randrange
+from random import randrange, random
 import pygame
 import math
-
-from pygame.examples.video import backgrounds
 
 RES = 800
 SIZE = 55
@@ -44,6 +42,8 @@ sonic_sprites = {
 def new_game():
     x, y = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     ring = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
+    ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
+    spawn_ringbox = False
     dirs = {'W': True, 'S': True, 'A': True, 'D': True}
     length = 1
     sonic = [(x, y)]
@@ -53,7 +53,7 @@ def new_game():
     current_sprite = sonic_sprites_stay["W"]
     animation_index = 0
     animation_speed = 1  # Чем выше число, тем медленнее смена кадров
-    return x, y, ring, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
+    return x, y, ring, ring_box, spawn_ringbox, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
 
 
 # Функция для отображения кнопки рестарта
@@ -68,7 +68,7 @@ def draw_restart_button(screen):
 
 
 # Переменные игры
-x, y, ring, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+x, y, ring, ring_box, spawn_ringbox, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
 game_over = False
 current_direction = "W"  # Положение Соника при старте игры
 
@@ -82,7 +82,7 @@ while True:
             exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r and game_over:
-                x, y, ring, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+                x, y, ring, ring_box, spawn_ringbox, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
                 game_over = False
 
     if not game_over:
@@ -125,6 +125,7 @@ while True:
 
         # Отрисовка колец
         ring_img = pygame.image.load('sprites/ring.png').convert_alpha()
+        ring_box_img = pygame.image.load('sprites/ring-box.png').convert_alpha()
         sc.blit(ring_img, ring)
 
         # Отображение количества колец
@@ -148,13 +149,25 @@ while True:
         elif y > RES - SIZE:
             y = 0
 
-        COLLISION_RADIUS = SIZE * 1  # Радиус, в котором кольцо подбирается
-        # Подбирание колец
+        COLLISION_RADIUS = SIZE // 1  # Радиус, в котором кольцо подбирается
         distance = math.sqrt((x - ring[0]) ** 2 + (y - ring[1]) ** 2)
         if distance < COLLISION_RADIUS:
             ring = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
             score += 1
             fps += 0.1
+
+        if score >= 10 and not spawn_ringbox:  # Проверка спавна мониторов с кольцами
+            if random() < 0.03:
+                spawn_ringbox = True
+                ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
+        if spawn_ringbox:
+            sc.blit(ring_box_img, ring_box)
+            COLLISION_RADIUS = SIZE // 1
+            distance = math.sqrt((x - ring_box[0]) ** 2 + (y - ring_box[1]) ** 2)
+            if distance < COLLISION_RADIUS:
+                spawn_ringbox = False
+                score += 10
+                fps += 0.5
 
     else:
         draw_restart_button(sc)
