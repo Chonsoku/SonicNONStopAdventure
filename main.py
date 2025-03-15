@@ -37,6 +37,17 @@ sonic_sprites = {
           ['1_3', '2_5', '2_6']]
 }
 
+spindash_sprites = {
+    "W": [pygame.image.load(f'sprites/spindash_sprites/W_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+          ['1_2', '2_3', '2_4']],
+    "S": [pygame.image.load(f'sprites/spindash_sprites/S_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+          ['1_1', '2_1', '2_2']],
+    "A": [pygame.image.load(f'sprites/spindash_sprites/A_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+          ['1_4', '2_7', '2_8']],
+    "D": [pygame.image.load(f'sprites/spindash_sprites/D_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+          ['1_3', '2_5', '2_6']]
+}
+
 
 # Функция для создания новой игры
 def new_game():
@@ -44,6 +55,8 @@ def new_game():
     ring = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     spawn_ringbox = False
+    spindash = False
+    press_e_key = 0
     dirs = {'W': True, 'S': True, 'A': True, 'D': True}
     length = 1
     sonic = [(x, y)]
@@ -53,7 +66,7 @@ def new_game():
     current_sprite = sonic_sprites_stay["W"]
     animation_index = 0
     animation_speed = 1  # Чем выше число, тем медленнее смена кадров
-    return x, y, ring, ring_box, spawn_ringbox, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
+    return x, y, ring, ring_box, press_e_key, spindash, spawn_ringbox, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
 
 
 # Функция для отображения кнопки рестарта
@@ -68,7 +81,7 @@ def draw_restart_button(screen):
 
 
 # Переменные игры
-x, y, ring, ring_box, spawn_ringbox, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+x, y, ring, ring_box, spawn_ringbox, press_e_key, spindash, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
 game_over = False
 current_direction = "W"  # Положение Соника при старте игры
 
@@ -82,7 +95,7 @@ while True:
             exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r and game_over:
-                x, y, ring, ring_box, spawn_ringbox, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+                x, y, ring, ring_box, press_e_key, spawn_ringbox, spindash, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
                 game_over = False
 
     if not game_over:
@@ -110,20 +123,24 @@ while True:
             if score >= 50:
                 score -= 50
                 fps = 5
+        if keys[pygame.K_SPACE]:
+            spindash = True
+        else:
+            spindash = False
 
-        # Анимация ходьбы
+        # Анимации
         if moving:
             animation_index += 1
             if animation_index >= animation_speed * len(sonic_sprites[current_direction]):
-                animation_index = 0  # Сброс анимации
-            current_sprite = sonic_sprites[current_direction][animation_index // animation_speed]
+                animation_index = 0
+            if spindash:
+                current_sprite = spindash_sprites[current_direction][animation_index // animation_speed]
+            else:
+                current_sprite = sonic_sprites[current_direction][animation_index // animation_speed]
         else:
-            current_sprite = sonic_sprites_stay[current_direction]  # Если не двигается, показываем статичный спрайт
-
-        # Отрисовка Соника
+            current_sprite = sonic_sprites_stay[current_direction]
+        # Отрисовка спрайтов
         sc.blit(current_sprite, (x, y))
-
-        # Отрисовка колец
         ring_img = pygame.image.load('sprites/ring.png').convert_alpha()
         ring_box_img = pygame.image.load('sprites/ring-box.png').convert_alpha()
         sc.blit(ring_img, ring)
@@ -164,7 +181,7 @@ while True:
             sc.blit(ring_box_img, ring_box)
             COLLISION_RADIUS = SIZE // 1
             distance = math.sqrt((x - ring_box[0]) ** 2 + (y - ring_box[1]) ** 2)
-            if distance < COLLISION_RADIUS:
+            if distance < COLLISION_RADIUS and keys[pygame.K_SPACE]:
                 spawn_ringbox = False
                 score += 10
                 fps += 0.5
