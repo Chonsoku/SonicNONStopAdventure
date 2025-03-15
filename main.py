@@ -48,7 +48,8 @@ spindash_sprites = {
 }
 
 
-bomb_sprites = [pygame.image.load('sprites/bomb_sprites/bomb_sprites_1.png').convert_alpha(), pygame.image.load('sprites/bomb_sprites/bomb_sprites_2.png').convert_alpha()]
+bomb_sprites = [pygame.image.load('sprites/bomb_sprites/bomb_sprites_1.png').convert_alpha(),
+                pygame.image.load('sprites/bomb_sprites/bomb_sprites_2.png').convert_alpha()]
 
 
 # Функция для создания новой игры
@@ -217,9 +218,6 @@ while True:
             draw_restart_button(sc)
             pygame.display.flip()
             continue
-
-    pygame.display.flip()
-    clock.tick(fps)
 
     pygame.display.flip()
     clock.tick(fps)
