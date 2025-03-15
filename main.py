@@ -18,7 +18,6 @@ clock = pygame.time.Clock()
 background_blackalpha = pygame.image.load('sprites/background(alpha_black).png').convert()
 background = pygame.image.load('sprites/greenhill_background.png').convert()
 
-# Загрузка спрайтов (статичные и анимационные)
 sonic_sprites_stay = {
     "W": pygame.image.load('sprites/sonic_sprites/W_keyboard/sonic_sprites_1_2.png').convert_alpha(),
     "S": pygame.image.load('sprites/sonic_sprites/S_keyboard/sonic_sprites_1_1.png').convert_alpha(),
@@ -101,7 +100,7 @@ while True:
     if not game_over:
         # Управление
         keys = pygame.key.get_pressed()
-        moving = False  # Флаг движения
+        moving = False
 
         if keys[pygame.K_w] and dirs['W']:
             dx, dy = 0, -1
@@ -156,7 +155,7 @@ while True:
         sonic.append((x, y))
         sonic = sonic[-length:]
 
-        # Зацикливание экрана (перемещение на противоположную сторону)
+        # Перемещение на проивоположную сторону окна
         if x < 0:
             x = RES - SIZE
         elif x > RES - SIZE:
@@ -165,15 +164,17 @@ while True:
             y = RES - SIZE
         elif y > RES - SIZE:
             y = 0
-
-        COLLISION_RADIUS = SIZE // 1  # Радиус, в котором кольцо подбирается
+        
+        # Радиус, в котором кольцо подбирается
+        COLLISION_RADIUS = SIZE // 1
         distance = math.sqrt((x - ring[0]) ** 2 + (y - ring[1]) ** 2)
         if distance < COLLISION_RADIUS:
             ring = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
             score += 1
             fps += 0.1
 
-        if score >= 10 and not spawn_ringbox:  # Проверка спавна мониторов с кольцами
+        # Проверка спавна мониторов с кольцами
+        if score >= 10 and not spawn_ringbox:
             if random() < 0.03:
                 spawn_ringbox = True
                 ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
