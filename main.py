@@ -15,7 +15,7 @@ pygame.display.set_icon(icon)
 # Создание окна
 sc = pygame.display.set_mode([RES, RES])
 clock = pygame.time.Clock()
-background_blackalpha = pygame.image.load('sprites/background(alpha_black).png').convert()
+background_blackalpha = pygame.image.load('sprites/background(alpha_black).png').convert_alpha()
 background = pygame.image.load('sprites/greenhill_background.png').convert()
 
 sonic_sprites_stay = {
@@ -48,12 +48,17 @@ spindash_sprites = {
 }
 
 
+bomb_sprites = [pygame.image.load('sprites/bomb_sprites/bomb_sprites_1.png').convert_alpha(), pygame.image.load('sprites/bomb_sprites/bomb_sprites_2.png').convert_alpha()]
+
+
 # Функция для создания новой игры
 def new_game():
+    global bomb_animation_index, bomb_animation_speed
     x, y = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     ring = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     spawn_ringbox = False
+    spawn_bombs = False
     spindash = False
     press_e_key = 0
     dirs = {'W': True, 'S': True, 'A': True, 'D': True}
@@ -65,13 +70,16 @@ def new_game():
     current_sprite = sonic_sprites_stay["W"]
     animation_index = 0
     animation_speed = 1  # Чем выше число, тем медленнее смена кадров
-    return x, y, ring, ring_box, press_e_key, spindash, spawn_ringbox, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
+    bomb_animation_index = 0
+    bomb_animation_speed = 10
+    return x, y, ring, ring_box, press_e_key, spawn_bombs, spindash, spawn_ringbox, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
 
 
 # Функция для отображения кнопки рестарта
 def draw_restart_button(screen):
     gameover = pygame.font.SysFont('soniclogojp', 70)
     restart_text = gameover.render("GAME OVER", 1, (208, 2, 27))
+    screen.blit(background_blackalpha, (0, 0))
     screen.blit(restart_text, (140, 310))
 
     font = pygame.font.SysFont('soniclogojp', 36)
@@ -80,7 +88,7 @@ def draw_restart_button(screen):
 
 
 # Переменные игры
-x, y, ring, ring_box, spawn_ringbox, press_e_key, spindash, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+x, y, ring, ring_box, spawn_ringbox, press_e_key, spindash, spawn_bombs, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
 game_over = False
 current_direction = "W"  # Положение Соника при старте игры
 
@@ -94,7 +102,7 @@ while True:
             exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r and game_over:
-                x, y, ring, ring_box, press_e_key, spawn_ringbox, spindash, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+                x, y, ring, ring_box, press_e_key, spawn_ringbox, spawn_bombs, spindash, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
                 game_over = False
 
     if not game_over:
@@ -164,7 +172,7 @@ while True:
             y = RES - SIZE
         elif y > RES - SIZE:
             y = 0
-        
+
         # Радиус, в котором кольцо подбирается
         COLLISION_RADIUS = SIZE // 1
         distance = math.sqrt((x - ring[0]) ** 2 + (y - ring[1]) ** 2)
@@ -187,6 +195,22 @@ while True:
                 score += 10
                 fps += 0.5
 
+        if score >= 5 and not spawn_ringbox:
+            if random() < 0.03:
+                spawn_bombs = True
+                bomb = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
+        if spawn_bombs:
+            bomb_animation_index += 1
+            if bomb_animation_index >= bomb_animation_speed * len(bomb_sprites):
+                bomb_animation_index = 0
+            current_bomb_sprite = bomb_sprites[bomb_animation_index // bomb_animation_speed]
+            sc.blit(current_bomb_sprite, bomb)
+            COLLISION_RADIUS = SIZE // 1
+            distance = math.sqrt((x - bomb[0]) ** 2 + (y - bomb[1]) ** 2)
+            if distance < COLLISION_RADIUS:
+                spawn_bombs = False
+                score -= 10
+                fps -= 1
     else:
         draw_restart_button(sc)
 
