@@ -182,7 +182,7 @@ while True:
             fps += 0.1
 
         # Проверка спавна мониторов с кольцами
-        if score >= 10 and not spawn_ringbox:
+        if score >= 5 and not spawn_ringbox:
             if random() < 0.03:
                 spawn_ringbox = True
                 ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
@@ -196,7 +196,7 @@ while True:
                 fps += 0.5
 
         if score >= 5 and not spawn_ringbox:
-            if random() < 0.03:
+            if random() < 0.07:
                 spawn_bombs = True
                 bomb = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
         if spawn_bombs:
@@ -211,8 +211,15 @@ while True:
                 spawn_bombs = False
                 score -= 10
                 fps -= 1
-    else:
-        draw_restart_button(sc)
+    if score < 0:
+            game_over = True
+    if game_over:
+            draw_restart_button(sc)
+            pygame.display.flip()
+            continue
+
+    pygame.display.flip()
+    clock.tick(fps)
 
     pygame.display.flip()
     clock.tick(fps)
