@@ -3,6 +3,8 @@ from random import randrange, random
 import pygame
 import math
 
+from pygame.examples.go_over_there import screen
+
 RES = 800
 SIZE = 55
 
@@ -51,6 +53,8 @@ spindash_sprites = {
 bomb_sprites = [pygame.image.load('sprites/bomb_sprites/bomb_sprites_1.png').convert_alpha(),
                 pygame.image.load('sprites/bomb_sprites/bomb_sprites_2.png').convert_alpha()]
 
+sprite_press_e = pygame.image.load('sprites/sprite_press_e.png').convert_alpha()
+
 
 # Функция для создания новой игры
 def new_game():
@@ -72,7 +76,7 @@ def new_game():
     animation_index = 0
     animation_speed = 1  # Чем выше число, тем медленнее смена кадров
     bomb_animation_index = 0
-    bomb_animation_speed = 10
+    bomb_animation_speed = 4
     return x, y, ring, ring_box, press_e_key, spawn_bombs, spindash, spawn_ringbox, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
 
 
@@ -91,7 +95,7 @@ def draw_restart_button(screen):
 # Переменные игры
 x, y, ring, ring_box, spawn_ringbox, press_e_key, spindash, spawn_bombs, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
 game_over = False
-current_direction = "W"  # Положение Соника при старте игры
+current_direction = "W"
 
 # Главный цикл игры
 while True:
@@ -129,6 +133,7 @@ while True:
             moving = True
         if keys[pygame.K_e]:
             if score >= 50:
+                press_e_key = 1
                 score -= 50
                 fps = 5
         if keys[pygame.K_SPACE]:
@@ -153,11 +158,6 @@ while True:
         ring_box_img = pygame.image.load('sprites/ring-box.png').convert_alpha()
         sc.blit(ring_img, ring)
 
-        # Отображение количества колец
-        font_score = pygame.font.SysFont('soniclogo_jp', 36)
-        render_score = font_score.render(f"Rings: {score}", 1, (255, 215, 0))
-        sc.blit(render_score, (5, 750))
-
         # Движение Соника
         x += dx * SIZE
         y += dy * SIZE
@@ -175,7 +175,7 @@ while True:
             y = 0
 
         # Радиус, в котором кольцо подбирается
-        COLLISION_RADIUS = SIZE // 1
+        COLLISION_RADIUS = SIZE * 1.2
         distance = math.sqrt((x - ring[0]) ** 2 + (y - ring[1]) ** 2)
         if distance < COLLISION_RADIUS:
             ring = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
@@ -189,15 +189,16 @@ while True:
                 ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
         if spawn_ringbox:
             sc.blit(ring_box_img, ring_box)
-            COLLISION_RADIUS = SIZE // 1
+            COLLISION_RADIUS = SIZE * 1.5
             distance = math.sqrt((x - ring_box[0]) ** 2 + (y - ring_box[1]) ** 2)
             if distance < COLLISION_RADIUS and keys[pygame.K_SPACE]:
                 spawn_ringbox = False
                 score += 10
                 fps += 0.5
 
-        if score >= 5 and not spawn_ringbox:
-            if random() < 0.07:
+        # Проверка спавна бомб
+        if score >= 10 and not spawn_bombs:
+            if random() < 0.05:
                 spawn_bombs = True
                 bomb = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
         if spawn_bombs:
@@ -206,12 +207,24 @@ while True:
                 bomb_animation_index = 0
             current_bomb_sprite = bomb_sprites[bomb_animation_index // bomb_animation_speed]
             sc.blit(current_bomb_sprite, bomb)
-            COLLISION_RADIUS = SIZE // 1
+            COLLISION_RADIUS = SIZE * 1.5
             distance = math.sqrt((x - bomb[0]) ** 2 + (y - bomb[1]) ** 2)
             if distance < COLLISION_RADIUS:
                 spawn_bombs = False
                 score -= 10
-                fps -= 1
+                fps -= 1.5
+            if fps <= 1:
+                fps = 1
+
+        # Отрисовка кнопки "press_e"
+        if score >= 50:
+            sc.blit(sprite_press_e, (615, 720))
+        # Отображение количества колец
+        font_score = pygame.font.SysFont('soniclogo_jp', 36)
+        render_score = font_score.render(f"Rings: {score}", 1, (255, 215, 0))
+        sc.blit(render_score, (5, 750))
+
+    # Проверка на Game Over
     if score < 0:
             game_over = True
     if game_over:
