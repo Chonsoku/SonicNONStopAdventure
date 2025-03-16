@@ -1,4 +1,3 @@
-
 import time
 from random import randrange, random
 import pygame
@@ -65,7 +64,6 @@ sprite_press_e = pygame.image.load('sprites/sprite_press_e.png').convert_alpha()
 
 # Функция для создания новой игры
 def new_game():
-    global bomb_animation_index, bomb_animation_speed, bomb_spawn_time, spindash_on_cooldown, spindash_cooldown_start, bomb_duration, spindash_start_time, spindash_duration, spindash_cooldown, badnikbug_animation_speed, badnikbug_animation_index, badnikbug_speed, badnikbug_direction
     x, y = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     ring = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
@@ -77,27 +75,14 @@ def new_game():
     dirs = {'W': True, 'S': True, 'A': True, 'D': True}
     sonic = [(x, y)]
     dx, dy = 0, 0
-    score = 0
-    fps = 5
+    number_rings = 0
+    fps = 30
 
     current_sprite = sonic_sprites_stay["W"]
     animation_index = 0
-    animation_speed = 1  # Чем выше число, тем медленнее смена кадров
-    bomb_animation_index = 0
-    bomb_animation_speed = 4
-    bomb_spawn_time = 0  # Время, когда бомбы были созданы
-    bomb_duration = 5  # Время жизни бомб в секундах
-    badnikbug_animation_index = 0
-    badnikbug_animation_speed = 2
-    badnikbug_direction = "left"
-    badnikbug_speed = 15  # Скорость движения бадника
-    spindash_start_time = 0
-    spindash_duration = 2  # Длительность спиндеша в секундах
-    spindash_cooldown = 1.5  # Время перезарядки в секундах
-    spindash_cooldown_start = 0
-    spindash_on_cooldown = False
+    animation_speed = 5  # Чем выше число, тем медленнее смена кадров
 
-    return x, y, ring, ring_box, press_e_key, spawn_bombs, spindash_active, spawn_badniksbugs, spawn_ringbox, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
+    return x, y, ring, ring_box, press_e_key, spawn_bombs, spindash_active, spawn_badniksbugs, spawn_ringbox, dirs, sonic, dx, dy, number_rings, fps, current_sprite, animation_index, animation_speed
 
 
 # Функция для отображения кнопки рестарта
@@ -113,8 +98,25 @@ def draw_restart_button(screen):
 
 
 # Переменные игры
-x, y, ring, ring_box, spawn_ringbox, press_e_key, spawn_badniksbugs, spindash_active, spawn_bombs, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+x, y, ring, ring_box, spawn_ringbox, press_e_key, spawn_badniksbugs, spindash_active, spawn_bombs, dirs, sonic, dx, dy, number_rings, fps, current_sprite, animation_index, animation_speed = new_game()
 game_over = False
+speed = 5
+bomb_animation_index = 0
+bomb_animation_speed = 10
+bomb_spawn_time = 0  # Время, когда бомбы были созданы
+bomb_duration = 5  # Время жизни бомб в секундах
+badnikbug_animation_index = 0
+badnikbug_animation_speed = 2
+badnikbug_direction = "left"
+badnikbug_speed = 5  # Скорость движения бадника
+spindash_start_time = 0
+spindash_duration = 2  # Длительность спиндеша в секундах
+spindash_cooldown = 1.5  # Время перезарядки в секундах
+spindash_cooldown_start = 0
+spindash_on_cooldown = False
+invulnerability_time = 1  # Время, когда игрок стал уязвимым
+invulnerability_duration = 1.5  # Длительность уязвимости в секундах
+is_invulnerable = False
 current_direction = "W"
 
 # Главный цикл игры
@@ -128,7 +130,7 @@ while True:
             exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r and game_over:
-                x, y, ring, ring_box, press_e_key, spawn_ringbox, spawn_badniksbugs, spawn_bombs, spindash_active, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+                x, y, ring, ring_box, press_e_key, spawn_ringbox, spawn_badniksbugs, spawn_bombs, spindash_active, dirs, sonic, dx, dy, number_rings, fps, current_sprite, animation_index, animation_speed = new_game()
                 game_over = False
 
     if not game_over:
@@ -153,19 +155,19 @@ while True:
             current_direction = "D"
             moving = True
         if keys[pygame.K_e]:
-            if score >= 50:
+            if number_rings >= 50:
                 press_e_key = 1
-                score -= 50
-                fps = 5
+                number_rings -= 50
+                speed = 5
         if keys[pygame.K_SPACE] and not spindash_on_cooldown:
             if not spindash_active:
                 spindash_active = True
-                fps += 2.5
+                speed += 2.5
                 spindash_start_time = current_time
         if spindash_active:
             if current_time - spindash_start_time >= spindash_duration:
                 spindash_active = False
-                fps -= 2.5
+                speed -= 2.5
                 spindash_on_cooldown = True
                 spindash_cooldown_start = current_time
         if spindash_on_cooldown:
@@ -179,8 +181,8 @@ while True:
         sc.blit(ring_img, ring)
 
         # Движение Соника
-        x += dx * SIZE
-        y += dy * SIZE
+        x += dx * speed
+        y += dy * speed
         sonic.append((x, y))
 
         # Перемещение на проивоположную сторону окна
@@ -198,11 +200,11 @@ while True:
         distance = math.sqrt((x - ring[0]) ** 2 + (y - ring[1]) ** 2)
         if distance < COLLISION_RADIUS:
             ring = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
-            score += 1
-            fps += 0.1
+            number_rings += 1
+            speed += 0.1
 
         # Проверка спавна мониторов с кольцами
-        if score >= 5 and not spawn_ringbox:
+        if number_rings >= 5 and not spawn_ringbox:
             if random() < 0.03:
                 spawn_ringbox = True
                 ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
@@ -212,11 +214,11 @@ while True:
             distance = math.sqrt((x - ring_box[0]) ** 2 + (y - ring_box[1]) ** 2)
             if distance < COLLISION_RADIUS and spindash_active:
                 spawn_ringbox = False
-                score += 10
-                fps += 0.5
+                number_rings += 10
+                speed += 0.5
 
         # Проверка спавна бомб
-        if score >= 10 and not spawn_bombs:
+        if number_rings >= 10 and not spawn_bombs:
             if random() < 0.05:
                 spawn_bombs = True
                 bomb = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
@@ -234,13 +236,13 @@ while True:
             distance = math.sqrt((x - bomb[0]) ** 2 + (y - bomb[1]) ** 2)
             if distance < COLLISION_RADIUS:
                 spawn_bombs = False
-                score -= 10
-                fps -= 10
-            if fps <= 5:
-                fps = 5
+                number_rings -= 15
+                speed -= 10
+            if speed <= 5:
+                speed = 5
 
         # Переменные для бадника-жука по оси X
-        if score >= 30 and not spawn_badniksbugs:
+        if number_rings >= 30 and not spawn_badniksbugs:
             if random() < 0.05:
                 spawn_badniksbugs = True
                 badnikbug = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
@@ -265,10 +267,18 @@ while True:
             if distance < COLLISION_RADIUS and spindash_active:
                 spawn_badniksbugs = False
             elif distance < COLLISION_RADIUS:
-                score -= 10
-                fps -= 10
-            if fps <= 5:
-                fps = 5
+                    if not is_invulnerable:  # Если игрок неуязвим
+                        is_invulnerable = True
+                        invulnerability_time = time.time()  # Запомнить время активации уязвимости
+                        number_rings -= 25
+                        speed -= 20
+                        # Игрок уязвим - потом добавить эффект мерцание
+            # Обработка времени уязвимости
+            if is_invulnerable:
+                if time.time() - invulnerability_time >= invulnerability_duration:
+                    is_invulnerable = False
+            if speed <= 5:
+                speed = 5
 
         # Анимации
         if moving:
@@ -283,15 +293,15 @@ while True:
             current_sprite = sonic_sprites_stay[current_direction]
 
         # Отрисовка кнопки "press_e"
-        if score >= 50:
+        if number_rings >= 50:
             sc.blit(sprite_press_e, (615, 720))
         # Отображение количества колец
         font_score = pygame.font.SysFont('soniclogo_jp', 36)
-        render_score = font_score.render(f"Rings: {score}", 1, (255, 215, 0))
+        render_score = font_score.render(f"Rings: {number_rings}", 1, (255, 215, 0))
         sc.blit(render_score, (5, 750))
 
     # Проверка на Game Over
-    if score < 0:
+    if number_rings < 0:
             game_over = True
     if game_over:
             draw_restart_button(sc)
@@ -300,4 +310,3 @@ while True:
 
     pygame.display.flip()
     clock.tick(fps)
-    # Конец цикла
