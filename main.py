@@ -3,7 +3,6 @@ from random import randrange, random
 import pygame
 import math
 
-from pygame.examples.go_over_there import screen
 
 RES = 800
 SIZE = 55
@@ -67,7 +66,6 @@ def new_game():
     spindash = False
     press_e_key = 0
     dirs = {'W': True, 'S': True, 'A': True, 'D': True}
-    length = 1
     sonic = [(x, y)]
     dx, dy = 0, 0
     score = 0
@@ -77,7 +75,7 @@ def new_game():
     animation_speed = 1  # Чем выше число, тем медленнее смена кадров
     bomb_animation_index = 0
     bomb_animation_speed = 4
-    return x, y, ring, ring_box, press_e_key, spawn_bombs, spindash, spawn_ringbox, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
+    return x, y, ring, ring_box, press_e_key, spawn_bombs, spindash, spawn_ringbox, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
 
 
 # Функция для отображения кнопки рестарта
@@ -93,7 +91,7 @@ def draw_restart_button(screen):
 
 
 # Переменные игры
-x, y, ring, ring_box, spawn_ringbox, press_e_key, spindash, spawn_bombs, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+x, y, ring, ring_box, spawn_ringbox, press_e_key, spindash, spawn_bombs, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
 game_over = False
 current_direction = "W"
 
@@ -107,7 +105,7 @@ while True:
             exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r and game_over:
-                x, y, ring, ring_box, press_e_key, spawn_ringbox, spawn_bombs, spindash, dirs, length, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+                x, y, ring, ring_box, press_e_key, spawn_ringbox, spawn_bombs, spindash, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
                 game_over = False
 
     if not game_over:
@@ -162,7 +160,6 @@ while True:
         x += dx * SIZE
         y += dy * SIZE
         sonic.append((x, y))
-        sonic = sonic[-length:]
 
         # Перемещение на проивоположную сторону окна
         if x < 0:
@@ -197,7 +194,7 @@ while True:
                 fps += 0.5
 
         # Проверка спавна бомб
-        if score >= 10 and not spawn_bombs:
+        if score >= 5 and not spawn_bombs:
             if random() < 0.05:
                 spawn_bombs = True
                 bomb = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
