@@ -1,4 +1,5 @@
 import os
+import time
 from random import randrange, random
 import pygame
 import math
@@ -57,7 +58,7 @@ sprite_press_e = pygame.image.load('sprites/sprite_press_e.png').convert_alpha()
 
 # Функция для создания новой игры
 def new_game():
-    global bomb_animation_index, bomb_animation_speed
+    global bomb_animation_index, bomb_animation_speed, bomb_spawn_time, bomb_duration
     x, y = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     ring = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
@@ -75,6 +76,8 @@ def new_game():
     animation_speed = 1  # Чем выше число, тем медленнее смена кадров
     bomb_animation_index = 0
     bomb_animation_speed = 4
+    bomb_spawn_time = 0  # Время, когда бомбы были созданы
+    bomb_duration = 5  # Время жизни бомб в секундах
     return x, y, ring, ring_box, press_e_key, spawn_bombs, spindash, spawn_ringbox, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
 
 
@@ -198,7 +201,11 @@ while True:
             if random() < 0.05:
                 spawn_bombs = True
                 bomb = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
+                bomb_spawn_time = time.time()
         if spawn_bombs:
+            if time.time() - bomb_spawn_time >= bomb_duration:
+                spawn_bombs = False
+                bomb_spawn_time = time.time()
             bomb_animation_index += 1
             if bomb_animation_index >= bomb_animation_speed * len(bomb_sprites):
                 bomb_animation_index = 0
@@ -209,9 +216,9 @@ while True:
             if distance < COLLISION_RADIUS:
                 spawn_bombs = False
                 score -= 10
-                fps -= 5
-            if fps <= 5:
-                fps = 5
+                fps -= 10
+            if fps <= 3:
+                fps = 3
 
         # Отрисовка кнопки "press_e"
         if score >= 50:
