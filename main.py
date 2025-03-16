@@ -10,56 +10,56 @@ SIZE = 55
 pygame.init()
 pygame.display.set_caption('Sonic NONStop Adventure')
 
-icon = pygame.image.load('game_icon.png')
+icon = pygame.image.load('assets/other/game_icon.png')
 pygame.display.set_icon(icon)
 
 # Создание окна
 sc = pygame.display.set_mode([RES, RES])
 clock = pygame.time.Clock()
-background_blackalpha = pygame.image.load('sprites/background(alpha_black).png').convert_alpha()
-background = pygame.image.load('sprites/greenhill_background.png').convert()
+background_blackalpha = pygame.image.load('assets/sprites/background(alpha_black).png').convert_alpha()
+background = pygame.image.load('assets/sprites/greenhill_background.png').convert()
 
 sonic_sprites_stay = {
-    "W": pygame.image.load('sprites/sonic_sprites/W_keyboard/sonic_sprites_1_2.png').convert_alpha(),
-    "S": pygame.image.load('sprites/sonic_sprites/S_keyboard/sonic_sprites_1_1.png').convert_alpha(),
-    "A": pygame.image.load('sprites/sonic_sprites/A_keyboard/sonic_sprites_1_4.png').convert_alpha(),
-    "D": pygame.image.load('sprites/sonic_sprites/D_keyboard/sonic_sprites_1_3.png').convert_alpha()
+    "W": pygame.image.load('assets/sprites/sonic_sprites/W_keyboard/sonic_sprites_1_2.png').convert_alpha(),
+    "S": pygame.image.load('assets/sprites/sonic_sprites/S_keyboard/sonic_sprites_1_1.png').convert_alpha(),
+    "A": pygame.image.load('assets/sprites/sonic_sprites/A_keyboard/sonic_sprites_1_4.png').convert_alpha(),
+    "D": pygame.image.load('assets/sprites/sonic_sprites/D_keyboard/sonic_sprites_1_3.png').convert_alpha()
 }
 
 sonic_sprites = {
-    "W": [pygame.image.load(f'sprites/sonic_sprites/W_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
+    "W": [pygame.image.load(f'assets/sprites/sonic_sprites/W_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
           ['1_2', '2_3', '2_4']],
-    "S": [pygame.image.load(f'sprites/sonic_sprites/S_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
+    "S": [pygame.image.load(f'assets/sprites/sonic_sprites/S_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
           ['1_1', '2_1', '2_2']],
-    "A": [pygame.image.load(f'sprites/sonic_sprites/A_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
+    "A": [pygame.image.load(f'assets/sprites/sonic_sprites/A_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
           ['1_4', '2_7', '2_8']],
-    "D": [pygame.image.load(f'sprites/sonic_sprites/D_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
+    "D": [pygame.image.load(f'assets/sprites/sonic_sprites/D_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
           ['1_3', '2_5', '2_6']]
 }
 
 spindash_sprites = {
-    "W": [pygame.image.load(f'sprites/spindash_sprites/W_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+    "W": [pygame.image.load(f'assets/sprites/spindash_sprites/W_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
           ['1_2', '2_3', '2_4']],
-    "S": [pygame.image.load(f'sprites/spindash_sprites/S_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+    "S": [pygame.image.load(f'assets/sprites/spindash_sprites/S_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
           ['1_1', '2_1', '2_2']],
-    "A": [pygame.image.load(f'sprites/spindash_sprites/A_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+    "A": [pygame.image.load(f'assets/sprites/spindash_sprites/A_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
           ['1_4', '2_7', '2_8']],
-    "D": [pygame.image.load(f'sprites/spindash_sprites/D_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+    "D": [pygame.image.load(f'assets/sprites/spindash_sprites/D_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
           ['1_3', '2_5', '2_6']]
 }
 
 badnikbug_sprites = {
-    "left": [pygame.image.load(f'sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
+    "left": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
              ['1(left)', '2(left)', '3(left)', '4(left)']],
-    "right": [pygame.image.load(f'sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
+    "right": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
               ['1(right)', '2(right)', '3(right)', '4(right)']]
 }
 
 
-bomb_sprites = [pygame.image.load('sprites/bomb_sprites/bomb_sprites_1.png').convert_alpha(),
-                pygame.image.load('sprites/bomb_sprites/bomb_sprites_2.png').convert_alpha()]
+bomb_sprites = [pygame.image.load('assets/sprites/bomb_sprites/bomb_sprites_1.png').convert_alpha(),
+                pygame.image.load('assets/sprites/bomb_sprites/bomb_sprites_2.png').convert_alpha()]
 
-sprite_press_e = pygame.image.load('sprites/sprite_press_e.png').convert_alpha()
+sprite_press_e = pygame.image.load('assets/sprites/sprite_press_e.png').convert_alpha()
 
 
 # Функция для создания новой игры
@@ -87,12 +87,12 @@ def new_game():
 
 # Функция для отображения кнопки рестарта
 def draw_restart_button(screen):
-    gameover = pygame.font.SysFont('soniclogojp', 70)
+    gameover = pygame.font.SysFont('Sonic Logo-JP', 70)
     restart_text = gameover.render("GAME OVER", 1, (208, 2, 27))
     screen.blit(background_blackalpha, (0, 0))
     screen.blit(restart_text, (140, 310))
 
-    font = pygame.font.SysFont('soniclogojp', 36)
+    font = pygame.font.SysFont('Sonic Logo-JP', 36)
     restart_text = font.render('Press "R" to restart', 1, (255, 255, 255))
     screen.blit(restart_text, (135, 410))
 
@@ -176,8 +176,8 @@ while True:
 
         # Отрисовка спрайтов
         sc.blit(current_sprite, (x, y))
-        ring_img = pygame.image.load('sprites/ring.png').convert_alpha()
-        ring_box_img = pygame.image.load('sprites/ring-box.png').convert_alpha()
+        ring_img = pygame.image.load('assets/sprites/ring.png').convert_alpha()
+        ring_box_img = pygame.image.load('assets/sprites/ring-box.png').convert_alpha()
         sc.blit(ring_img, ring)
 
         # Движение Соника
@@ -236,7 +236,7 @@ while True:
             distance = math.sqrt((x - bomb[0]) ** 2 + (y - bomb[1]) ** 2)
             if distance < COLLISION_RADIUS:
                 spawn_bombs = False
-                number_rings -= 15
+                number_rings -= 10
                 speed -= 10
             if speed <= 5:
                 speed = 5
@@ -270,7 +270,7 @@ while True:
                     if not is_invulnerable:  # Если игрок неуязвим
                         is_invulnerable = True
                         invulnerability_time = time.time()  # Запомнить время активации уязвимости
-                        number_rings -= 25
+                        number_rings -= 20
                         speed -= 20
                         # Игрок уязвим - потом добавить эффект мерцание
             # Обработка времени уязвимости
@@ -296,9 +296,9 @@ while True:
         if number_rings >= 50:
             sc.blit(sprite_press_e, (615, 720))
         # Отображение количества колец
-        font_score = pygame.font.SysFont('soniclogo_jp', 36)
-        render_score = font_score.render(f"Rings: {number_rings}", 1, (255, 215, 0))
-        sc.blit(render_score, (5, 750))
+        font_ring_number = pygame.font.SysFont('Sonic Logo-JP', 36)
+        render_ring_number = font_ring_number.render(f"Rings: {number_rings}", 1, (255, 215, 0))
+        sc.blit(render_ring_number, (5, 750))
 
     # Проверка на Game Over
     if number_rings < 0:
