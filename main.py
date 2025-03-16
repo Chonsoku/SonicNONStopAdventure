@@ -212,9 +212,9 @@ while True:
             if distance < COLLISION_RADIUS:
                 spawn_bombs = False
                 score -= 10
-                fps -= 1.5
-            if fps <= 1:
-                fps = 1
+                fps -= 5
+            if fps <= 5:
+                fps = 5
 
         # Отрисовка кнопки "press_e"
         if score >= 50:
