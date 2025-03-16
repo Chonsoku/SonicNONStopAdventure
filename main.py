@@ -1,4 +1,4 @@
-import os
+
 import time
 from random import randrange, random
 import pygame
@@ -49,6 +49,13 @@ spindash_sprites = {
           ['1_3', '2_5', '2_6']]
 }
 
+badnikbug_sprites = {
+    "left": [pygame.image.load(f'sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
+             ['1(left)', '2(left)', '3(left)', '4(left)']],
+    "right": [pygame.image.load(f'sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
+              ['1(right)', '2(right)', '3(right)', '4(right)']]
+}
+
 
 bomb_sprites = [pygame.image.load('sprites/bomb_sprites/bomb_sprites_1.png').convert_alpha(),
                 pygame.image.load('sprites/bomb_sprites/bomb_sprites_2.png').convert_alpha()]
@@ -58,19 +65,21 @@ sprite_press_e = pygame.image.load('sprites/sprite_press_e.png').convert_alpha()
 
 # Функция для создания новой игры
 def new_game():
-    global bomb_animation_index, bomb_animation_speed, bomb_spawn_time, bomb_duration
+    global bomb_animation_index, bomb_animation_speed, bomb_spawn_time, spindash_on_cooldown, spindash_cooldown_start, bomb_duration, spindash_start_time, spindash_duration, spindash_cooldown, badnikbug_animation_speed, badnikbug_animation_index, badnikbug_speed, badnikbug_direction
     x, y = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     ring = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     spawn_ringbox = False
     spawn_bombs = False
-    spindash = False
+    spawn_badniksbugs = False
+    spindash_active = False
     press_e_key = 0
     dirs = {'W': True, 'S': True, 'A': True, 'D': True}
     sonic = [(x, y)]
     dx, dy = 0, 0
     score = 0
     fps = 5
+
     current_sprite = sonic_sprites_stay["W"]
     animation_index = 0
     animation_speed = 1  # Чем выше число, тем медленнее смена кадров
@@ -78,7 +87,17 @@ def new_game():
     bomb_animation_speed = 4
     bomb_spawn_time = 0  # Время, когда бомбы были созданы
     bomb_duration = 5  # Время жизни бомб в секундах
-    return x, y, ring, ring_box, press_e_key, spawn_bombs, spindash, spawn_ringbox, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
+    badnikbug_animation_index = 0
+    badnikbug_animation_speed = 2
+    badnikbug_direction = "left"
+    badnikbug_speed = 15  # Скорость движения бадника
+    spindash_start_time = 0
+    spindash_duration = 2  # Длительность спиндеша в секундах
+    spindash_cooldown = 1.5  # Время перезарядки в секундах
+    spindash_cooldown_start = 0
+    spindash_on_cooldown = False
+
+    return x, y, ring, ring_box, press_e_key, spawn_bombs, spindash_active, spawn_badniksbugs, spawn_ringbox, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed
 
 
 # Функция для отображения кнопки рестарта
@@ -94,13 +113,14 @@ def draw_restart_button(screen):
 
 
 # Переменные игры
-x, y, ring, ring_box, spawn_ringbox, press_e_key, spindash, spawn_bombs, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+x, y, ring, ring_box, spawn_ringbox, press_e_key, spawn_badniksbugs, spindash_active, spawn_bombs, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
 game_over = False
 current_direction = "W"
 
 # Главный цикл игры
 while True:
     sc.blit(background, (0, 0))
+    current_time = time.time()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -108,7 +128,7 @@ while True:
             exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r and game_over:
-                x, y, ring, ring_box, press_e_key, spawn_ringbox, spawn_bombs, spindash, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
+                x, y, ring, ring_box, press_e_key, spawn_ringbox, spawn_badniksbugs, spawn_bombs, spindash_active, dirs, sonic, dx, dy, score, fps, current_sprite, animation_index, animation_speed = new_game()
                 game_over = False
 
     if not game_over:
@@ -137,22 +157,21 @@ while True:
                 press_e_key = 1
                 score -= 50
                 fps = 5
-        if keys[pygame.K_SPACE]:
-            spindash = True
-        else:
-            spindash = False
+        if keys[pygame.K_SPACE] and not spindash_on_cooldown:
+            if not spindash_active:
+                spindash_active = True
+                fps += 2.5
+                spindash_start_time = current_time
+        if spindash_active:
+            if current_time - spindash_start_time >= spindash_duration:
+                spindash_active = False
+                fps -= 2.5
+                spindash_on_cooldown = True
+                spindash_cooldown_start = current_time
+        if spindash_on_cooldown:
+            if current_time - spindash_cooldown_start >= spindash_cooldown:
+                spindash_on_cooldown = False
 
-        # Анимации
-        if moving:
-            animation_index += 1
-            if animation_index >= animation_speed * len(sonic_sprites[current_direction]):
-                animation_index = 0
-            if spindash:
-                current_sprite = spindash_sprites[current_direction][animation_index // animation_speed]
-            else:
-                current_sprite = sonic_sprites[current_direction][animation_index // animation_speed]
-        else:
-            current_sprite = sonic_sprites_stay[current_direction]
         # Отрисовка спрайтов
         sc.blit(current_sprite, (x, y))
         ring_img = pygame.image.load('sprites/ring.png').convert_alpha()
@@ -191,13 +210,13 @@ while True:
             sc.blit(ring_box_img, ring_box)
             COLLISION_RADIUS = SIZE * 1.5
             distance = math.sqrt((x - ring_box[0]) ** 2 + (y - ring_box[1]) ** 2)
-            if distance < COLLISION_RADIUS and keys[pygame.K_SPACE]:
+            if distance < COLLISION_RADIUS and spindash_active:
                 spawn_ringbox = False
                 score += 10
                 fps += 0.5
 
         # Проверка спавна бомб
-        if score >= 5 and not spawn_bombs:
+        if score >= 10 and not spawn_bombs:
             if random() < 0.05:
                 spawn_bombs = True
                 bomb = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
@@ -217,8 +236,51 @@ while True:
                 spawn_bombs = False
                 score -= 10
                 fps -= 10
-            if fps <= 3:
-                fps = 3
+            if fps <= 5:
+                fps = 5
+
+        # Переменные для бадника-жука по оси X
+        if score >= 30 and not spawn_badniksbugs:
+            if random() < 0.05:
+                spawn_badniksbugs = True
+                badnikbug = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
+                badnikbug_direction = "left" if random() < 0.5 else "right"
+        if spawn_badniksbugs:
+            if badnikbug_direction == "left":
+                badnikbug = (badnikbug[0] - badnikbug_speed, badnikbug[1])
+                if badnikbug[0] < 0:  # Если выходит за пределы экрана, меняем направление
+                    badnikbug_direction = "right"
+            else:
+                badnikbug = (badnikbug[0] + badnikbug_speed, badnikbug[1])
+                if badnikbug[0] > RES - SIZE:  # Если выходит за пределы экрана, меняем направление
+                    badnikbug_direction = "left"
+            badnikbug_animation_index += 1
+            if badnikbug_animation_index >= badnikbug_animation_speed * len(badnikbug_sprites[badnikbug_direction]):
+                badnikbug_animation_index = 0
+            current_badnik_sprite = badnikbug_sprites[badnikbug_direction][
+                badnikbug_animation_index // badnikbug_animation_speed]
+            sc.blit(current_badnik_sprite, badnikbug)
+            COLLISION_RADIUS = SIZE * 1.5
+            distance = math.sqrt((x - badnikbug[0]) ** 2 + (y - badnikbug[1]) ** 2)
+            if distance < COLLISION_RADIUS and spindash_active:
+                spawn_badniksbugs = False
+            elif distance < COLLISION_RADIUS:
+                score -= 10
+                fps -= 10
+            if fps <= 5:
+                fps = 5
+
+        # Анимации
+        if moving:
+            animation_index += 1
+            if animation_index >= animation_speed * len(sonic_sprites[current_direction]):
+                animation_index = 0
+            if spindash_active:
+                current_sprite = spindash_sprites[current_direction][animation_index // animation_speed]
+            else:
+                current_sprite = sonic_sprites[current_direction][animation_index // animation_speed]
+        else:
+            current_sprite = sonic_sprites_stay[current_direction]
 
         # Отрисовка кнопки "press_e"
         if score >= 50:
@@ -238,3 +300,4 @@ while True:
 
     pygame.display.flip()
     clock.tick(fps)
+    # Конец цикла
