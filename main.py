@@ -235,9 +235,17 @@ while True:
             COLLISION_RADIUS = SIZE * 1.5
             distance = math.sqrt((x - bomb[0]) ** 2 + (y - bomb[1]) ** 2)
             if distance < COLLISION_RADIUS:
-                spawn_bombs = False
-                number_rings -= 10
-                speed -= 10
+                if not is_invulnerable:  # Если игрок неуязвим
+                    spawn_bombs = False
+                    is_invulnerable = True
+                    invulnerability_time = time.time()  # Запомнить время активации уязвимости
+                    number_rings -= 20
+                    speed -= 20
+                    # Игрок уязвим - потом добавить эффект мерцание
+            # Обработка времени уязвимости
+            if is_invulnerable:
+                if time.time() - invulnerability_time >= invulnerability_duration:
+                    is_invulnerable = False
             if speed <= 5:
                 speed = 5
 
