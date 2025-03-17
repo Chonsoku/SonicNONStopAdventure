@@ -48,11 +48,18 @@ spindash_sprites = {
           ['1_3', '2_5', '2_6']]
 }
 
-badnikbug_sprites = {
+badnikbug_sprites_x = {
     "left": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
              ['1(left)', '2(left)', '3(left)', '4(left)']],
     "right": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
               ['1(right)', '2(right)', '3(right)', '4(right)']]
+}
+
+badnikbug_sprites_y = {
+    "up": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis Y/badnikbug_sprites_{i}.png').convert_alpha() for i in
+           ['1(up)', '2(up)', '3(up)', '4(up)']],
+    "down": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis Y/badnikbug_sprites_{i}.png').convert_alpha() for i in
+             ['1(down)', '2(down)', '3(down)', '4(down)']]
 }
 
 
@@ -69,7 +76,8 @@ def new_game():
     ring_box = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
     spawn_ringbox = False
     spawn_bombs = False
-    spawn_badniksbugs = False
+    spawn_badniksbugs_x = False
+    spawn_badniksbugs_y = False
     spindash_active = False
     press_e_key = 0
     dirs = {'W': True, 'S': True, 'A': True, 'D': True}
@@ -82,7 +90,7 @@ def new_game():
     animation_index = 0
     animation_speed = 5  # Чем выше число, тем медленнее смена кадров
 
-    return x, y, ring, ring_box, press_e_key, spawn_bombs, spindash_active, spawn_badniksbugs, spawn_ringbox, dirs, sonic, dx, dy, number_rings, fps, current_sprite, animation_index, animation_speed
+    return x, y, ring, ring_box, press_e_key, spawn_bombs, spindash_active, spawn_badniksbugs_x, spawn_badniksbugs_y, spawn_ringbox, dirs, sonic, dx, dy, number_rings, fps, current_sprite, animation_index, animation_speed
 
 
 # Функция для отображения кнопки рестарта
@@ -98,17 +106,21 @@ def draw_restart_button(screen):
 
 
 # Переменные игры
-x, y, ring, ring_box, spawn_ringbox, press_e_key, spawn_badniksbugs, spindash_active, spawn_bombs, dirs, sonic, dx, dy, number_rings, fps, current_sprite, animation_index, animation_speed = new_game()
+x, y, ring, ring_box, spawn_ringbox, press_e_key, spawn_badniksbugs_x, spawn_badniksbugs_y, spindash_active, spawn_bombs, dirs, sonic, dx, dy, number_rings, fps, current_sprite, animation_index, animation_speed = new_game()
 game_over = False
 speed = 5
 bomb_animation_index = 0
 bomb_animation_speed = 10
 bomb_spawn_time = 0  # Время, когда бомбы были созданы
 bomb_duration = 5  # Время жизни бомб в секундах
-badnikbug_animation_index = 0
-badnikbug_animation_speed = 2
-badnikbug_direction = "left"
-badnikbug_speed = 5  # Скорость движения бадника
+badnikbug_animation_index_x = 0
+badnikbug_animation_speed_x = 2
+badnikbug_direction_x = "left"
+badnikbug_speed_x = 5
+badnikbug_animation_index_y = 0
+badnikbug_animation_speed_y = 2
+badnikbug_direction_y = "up"
+badnikbug_speed_y = 5  # Скорость движения бадника
 spindash_start_time = 0
 spindash_duration = 2  # Длительность спиндеша в секундах
 spindash_cooldown = 1.5  # Время перезарядки в секундах
@@ -130,7 +142,7 @@ while True:
             exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r and game_over:
-                x, y, ring, ring_box, press_e_key, spawn_ringbox, spawn_badniksbugs, spawn_bombs, spindash_active, dirs, sonic, dx, dy, number_rings, fps, current_sprite, animation_index, animation_speed = new_game()
+                x, y, ring, ring_box, press_e_key, spawn_ringbox, spawn_badniksbugs_x, spawn_badniksbugs_y, spawn_bombs, spindash_active, dirs, sonic, dx, dy, number_rings, fps, current_sprite, animation_index, animation_speed = new_game()
                 game_over = False
 
     if not game_over:
@@ -250,37 +262,78 @@ while True:
                 speed = 5
 
         # Переменные для бадника-жука по оси X
-        if number_rings >= 30 and not spawn_badniksbugs:
-            if random() < 0.05:
-                spawn_badniksbugs = True
-                badnikbug = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
-                badnikbug_direction = "left" if random() < 0.5 else "right"
-        if spawn_badniksbugs:
-            if badnikbug_direction == "left":
-                badnikbug = (badnikbug[0] - badnikbug_speed, badnikbug[1])
-                if badnikbug[0] < 0:  # Если выходит за пределы экрана, меняем направление
-                    badnikbug_direction = "right"
+        if number_rings >= 30 and not spawn_badniksbugs_x:
+            if random() < 0.5:
+                spawn_badniksbugs_x = True
+                badnikbug_x = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
+                badnikbug_direction_x = "left" if random() < 0.5 else "right"
+        if spawn_badniksbugs_x:
+            if badnikbug_direction_x == "left":
+                badnikbug_x = (badnikbug_x[0] - badnikbug_speed_x, badnikbug_x[1])  # Обновляем координаты X
+                if badnikbug_x[0] < 0:  # Если выходит за пределы экрана, меняем направление
+                    badnikbug_direction_x = "right"
             else:
-                badnikbug = (badnikbug[0] + badnikbug_speed, badnikbug[1])
-                if badnikbug[0] > RES - SIZE:  # Если выходит за пределы экрана, меняем направление
-                    badnikbug_direction = "left"
-            badnikbug_animation_index += 1
-            if badnikbug_animation_index >= badnikbug_animation_speed * len(badnikbug_sprites[badnikbug_direction]):
-                badnikbug_animation_index = 0
-            current_badnik_sprite = badnikbug_sprites[badnikbug_direction][
-                badnikbug_animation_index // badnikbug_animation_speed]
-            sc.blit(current_badnik_sprite, badnikbug)
+                badnikbug_x = (badnikbug_x[0] + badnikbug_speed_x, badnikbug_x[1])  # Обновляем координаты X
+                if badnikbug_x[0] > RES - SIZE:  # Если выходит за пределы экрана, меняем направление
+                    badnikbug_direction_x = "left"
+            # Обновление индекса анимации
+            badnikbug_animation_index_x += 1
+            if badnikbug_animation_index_x >= badnikbug_animation_speed_x * len(badnikbug_sprites_x[badnikbug_direction_x]):
+                badnikbug_animation_index_x = 0
+            current_badnik_sprite_x = badnikbug_sprites_x[badnikbug_direction_x][
+                badnikbug_animation_index_x // badnikbug_animation_speed_x]
+            sc.blit(current_badnik_sprite_x, badnikbug_x)  # Отображаем бадника
             COLLISION_RADIUS = SIZE * 1.5
-            distance = math.sqrt((x - badnikbug[0]) ** 2 + (y - badnikbug[1]) ** 2)
+            distance = math.sqrt((x - badnikbug_x[0]) ** 2 + (y - badnikbug_x[1]) ** 2)
             if distance < COLLISION_RADIUS and spindash_active:
-                spawn_badniksbugs = False
+                spawn_badniksbugs_x = False
             elif distance < COLLISION_RADIUS:
+                if not is_invulnerable:  # Если игрок неуязвим
+                    is_invulnerable = True
+                    invulnerability_time = time.time()  # Запомнить время активации уязвимости
+                    number_rings -= 20
+                    speed -= 20
+                    # Игрок уязвим - потом добавить эффект мерцания
+        # Обработка времени уязвимости
+        if is_invulnerable:
+            if time.time() - invulnerability_time >= invulnerability_duration:
+                is_invulnerable = False
+        if speed <= 5:
+            speed = 5
+
+            # Переменные для бадника-жука по оси Y
+            if number_rings >= 30 and not spawn_badniksbugs_y:
+                if random() < 0.5:
+                    spawn_badniksbugs_y = True
+                    badnikbug_y = randrange(0, RES - SIZE, SIZE), randrange(0, RES - SIZE, SIZE)
+                    badnikbug_direction_y = "up" if random() < 0.5 else "down"
+            if spawn_badniksbugs_y:
+                if badnikbug_direction_y == "up":
+                    badnikbug_y = (badnikbug_y[0], badnikbug_y[1] - badnikbug_speed_y)  # Изменяем Y координату
+                    if badnikbug_y[1] < 0:  # Если выходит за пределы экрана, меняем направление
+                        badnikbug_direction_y = "down"
+                else:
+                    badnikbug_y = (badnikbug_y[0], badnikbug_y[1] + badnikbug_speed_y)  # Изменяем Y координату
+                    if badnikbug_y[1] > RES - SIZE:  # Если выходит за пределы экрана, меняем направление
+                        badnikbug_direction_y = "up"
+                badnikbug_animation_index_y += 1
+                if badnikbug_animation_index_y >= badnikbug_animation_speed_y * len(
+                        badnikbug_sprites_y[badnikbug_direction_y]):
+                    badnikbug_animation_index_y = 0
+                current_badnik_sprite_y = badnikbug_sprites_y[badnikbug_direction_y][
+                    badnikbug_animation_index_y // badnikbug_animation_speed_y]
+                sc.blit(current_badnik_sprite_y, badnikbug_y)                                # Пока что, конкретно бадник-жук по оси Y - работает не корректно.
+                COLLISION_RADIUS = SIZE * 1.5                                                # Так как он уничтожается после нажатия кнопки спиндеша, игнорируя проверку коллизии!
+                distance = math.sqrt((x - badnikbug_y[0]) ** 2 + (y - badnikbug_y[1]) ** 2)
+                if distance < COLLISION_RADIUS and spindash_active:
+                    spawn_badniksbugs_x = False
+                elif distance < COLLISION_RADIUS:
                     if not is_invulnerable:  # Если игрок неуязвим
                         is_invulnerable = True
                         invulnerability_time = time.time()  # Запомнить время активации уязвимости
                         number_rings -= 20
                         speed -= 20
-                        # Игрок уязвим - потом добавить эффект мерцание
+                        # Игрок уязвим - потом добавить эффект мерцания
             # Обработка времени уязвимости
             if is_invulnerable:
                 if time.time() - invulnerability_time >= invulnerability_duration:
