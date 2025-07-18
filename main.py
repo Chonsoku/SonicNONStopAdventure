@@ -56,10 +56,10 @@ badnikbug_sprites_x = {
 }
 
 badnikbug_sprites_y = {
-    "up": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis Y/badnikbug_sprites_{i}.png').convert_alpha() for i in
-           ['1(up)', '2(up)', '3(up)', '4(up)']],
-    "down": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis Y/badnikbug_sprites_{i}.png').convert_alpha() for i in
-             ['1(down)', '2(down)', '3(down)', '4(down)']]
+    "up": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
+             ['1(left)', '2(left)', '3(left)', '4(left)']],
+    "down": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
+              ['1(right)', '2(right)', '3(right)', '4(right)']]
 }
 
 
