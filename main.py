@@ -1,5 +1,13 @@
-import time
 from random import randrange, random
+import os, sys, time
+
+def resource_path(relative_path):
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 import pygame
 import math
 
@@ -10,63 +18,63 @@ SIZE = 55
 pygame.init()
 pygame.display.set_caption('Sonic NONStop Adventure')
 
-icon = pygame.image.load('assets/other/game_icon.png')
+icon = pygame.image.load(resource_path('assets/other/game_icon.png'))
 pygame.display.set_icon(icon)
 
 # Создание окна
 sc = pygame.display.set_mode([RES, RES])
 clock = pygame.time.Clock()
-background_blackalpha = pygame.image.load('assets/sprites/background(alpha_black).png').convert_alpha()
-background = pygame.image.load('assets/sprites/greenhill_background.png').convert()
+background_blackalpha = pygame.image.load(resource_path('assets/sprites/background(alpha_black).png')).convert_alpha()
+background = pygame.image.load(resource_path('assets/sprites/greenhill_background.png')).convert()
 
 sonic_sprites_stay = {
-    "W": pygame.image.load('assets/sprites/sonic_sprites/W_keyboard/sonic_sprites_1_2.png').convert_alpha(),
-    "S": pygame.image.load('assets/sprites/sonic_sprites/S_keyboard/sonic_sprites_1_1.png').convert_alpha(),
-    "A": pygame.image.load('assets/sprites/sonic_sprites/A_keyboard/sonic_sprites_1_4.png').convert_alpha(),
-    "D": pygame.image.load('assets/sprites/sonic_sprites/D_keyboard/sonic_sprites_1_3.png').convert_alpha()
+    "W": pygame.image.load(resource_path('assets/sprites/sonic_sprites/W_keyboard/sonic_sprites_1_2.png')).convert_alpha(),
+    "S": pygame.image.load(resource_path('assets/sprites/sonic_sprites/S_keyboard/sonic_sprites_1_1.png')).convert_alpha(),
+    "A": pygame.image.load(resource_path('assets/sprites/sonic_sprites/A_keyboard/sonic_sprites_1_4.png')).convert_alpha(),
+    "D": pygame.image.load(resource_path('assets/sprites/sonic_sprites/D_keyboard/sonic_sprites_1_3.png')).convert_alpha()
 }
 
 sonic_sprites = {
-    "W": [pygame.image.load(f'assets/sprites/sonic_sprites/W_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
+    "W": [pygame.image.load(resource_path(f'assets/sprites/sonic_sprites/W_keyboard/sonic_sprites_{i}.png')).convert_alpha() for i in
           ['1_2', '2_3', '2_4']],
-    "S": [pygame.image.load(f'assets/sprites/sonic_sprites/S_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
+    "S": [pygame.image.load(resource_path(f'assets/sprites/sonic_sprites/S_keyboard/sonic_sprites_{i}.png')).convert_alpha() for i in
           ['1_1', '2_1', '2_2']],
-    "A": [pygame.image.load(f'assets/sprites/sonic_sprites/A_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
+    "A": [pygame.image.load(resource_path(f'assets/sprites/sonic_sprites/A_keyboard/sonic_sprites_{i}.png')).convert_alpha() for i in
           ['1_4', '2_7', '2_8']],
-    "D": [pygame.image.load(f'assets/sprites/sonic_sprites/D_keyboard/sonic_sprites_{i}.png').convert_alpha() for i in
+    "D": [pygame.image.load(resource_path(f'assets/sprites/sonic_sprites/D_keyboard/sonic_sprites_{i}.png')).convert_alpha() for i in
           ['1_3', '2_5', '2_6']]
 }
 
 spindash_sprites = {
-    "W": [pygame.image.load(f'assets/sprites/spindash_sprites/W_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+    "W": [pygame.image.load(resource_path(f'assets/sprites/spindash_sprites/W_keyboard/spindash_sprites_{i}.png')).convert_alpha() for i in
           ['1_2', '2_3', '2_4']],
-    "S": [pygame.image.load(f'assets/sprites/spindash_sprites/S_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+    "S": [pygame.image.load(resource_path(f'assets/sprites/spindash_sprites/S_keyboard/spindash_sprites_{i}.png')).convert_alpha() for i in
           ['1_1', '2_1', '2_2']],
-    "A": [pygame.image.load(f'assets/sprites/spindash_sprites/A_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+    "A": [pygame.image.load(resource_path(f'assets/sprites/spindash_sprites/A_keyboard/spindash_sprites_{i}.png')).convert_alpha() for i in
           ['1_4', '2_7', '2_8']],
-    "D": [pygame.image.load(f'assets/sprites/spindash_sprites/D_keyboard/spindash_sprites_{i}.png').convert_alpha() for i in
+    "D": [pygame.image.load(resource_path(f'assets/sprites/spindash_sprites/D_keyboard/spindash_sprites_{i}.png')).convert_alpha() for i in
           ['1_3', '2_5', '2_6']]
 }
 
 badnikbug_sprites_x = {
-    "left": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
+    "left": [pygame.image.load(resource_path(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png')).convert_alpha() for i in
              ['1(left)', '2(left)', '3(left)', '4(left)']],
-    "right": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
+    "right": [pygame.image.load(resource_path(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png')).convert_alpha() for i in
               ['1(right)', '2(right)', '3(right)', '4(right)']]
 }
 
 badnikbug_sprites_y = {
-    "up": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
-             ['1(left)', '2(left)', '3(left)', '4(left)']],
-    "down": [pygame.image.load(f'assets/sprites/badnikbug_sprites/axis X/badnikbug_sprites_{i}.png').convert_alpha() for i in
-              ['1(right)', '2(right)', '3(right)', '4(right)']]
+    "up": [pygame.image.load(resource_path(f'assets/sprites/badnikbug_sprites/axis Y/badnikbug_sprites_{i}.png')).convert_alpha() for i in
+             ['1(up)', '2(up)', '3(up)', '4(up)']],
+    "down": [pygame.image.load(resource_path(f'assets/sprites/badnikbug_sprites/axis Y/badnikbug_sprites_{i}.png')).convert_alpha() for i in
+              ['1(down)', '2(down)', '3(down)', '4(down)']]
 }
 
 
-bomb_sprites = [pygame.image.load('assets/sprites/bomb_sprites/bomb_sprites_1.png').convert_alpha(),
-                pygame.image.load('assets/sprites/bomb_sprites/bomb_sprites_2.png').convert_alpha()]
+bomb_sprites = [pygame.image.load(resource_path('assets/sprites/bomb_sprites/bomb_sprites_1.png')).convert_alpha(),
+                pygame.image.load(resource_path('assets/sprites/bomb_sprites/bomb_sprites_2.png')).convert_alpha()]
 
-sprite_press_e = pygame.image.load('assets/sprites/sprite_press_e.png').convert_alpha()
+sprite_press_e = pygame.image.load(resource_path('assets/sprites/sprite_press_e.png')).convert_alpha()
 
 
 # Функция для создания новой игры
@@ -188,8 +196,8 @@ while True:
 
         # Отрисовка спрайтов
         sc.blit(current_sprite, (x, y))
-        ring_img = pygame.image.load('assets/sprites/ring.png').convert_alpha()
-        ring_box_img = pygame.image.load('assets/sprites/ring-box.png').convert_alpha()
+        ring_img = pygame.image.load(resource_path('assets/sprites/ring.png')).convert_alpha()
+        ring_box_img = pygame.image.load(resource_path('assets/sprites/ring-box.png')).convert_alpha()
         sc.blit(ring_img, ring)
 
         # Движение Соника
